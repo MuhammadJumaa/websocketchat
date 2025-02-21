@@ -21,6 +21,14 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  webpack: (config) => {
+    config.externals.push({
+      'utf-8-validate': 'commonjs utf-8-validate',
+      'bufferutil': 'commonjs bufferutil',
+    });
+    return config;
+  },
+  output: 'standalone',
 }
 
 mergeConfig(nextConfig, userConfig)
