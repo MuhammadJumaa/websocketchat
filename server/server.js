@@ -2,11 +2,13 @@ const WebSocket = require('ws');
 const http = require('http');
 
 const PORT = process.env.PORT || 8081;
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',');
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000').split(',').map(origin => origin.trim());
 
 // Create an HTTP server
 const server = http.createServer((req, res) => {
   const origin = req.headers.origin;
+  console.log('Incoming HTTP request from origin:', origin);
+  
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -18,11 +20,18 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocket.Server({ 
   server,
   verifyClient: ({ origin }) => {
+    console.log('WebSocket connection attempt from origin:', origin);
+    
     // Allow all origins in development
-    if (process.env.NODE_ENV !== 'production') return true;
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Development mode: allowing all origins');
+      return true;
+    }
     
     // In production, check against allowed origins
-    return ALLOWED_ORIGINS.includes(origin);
+    const isAllowed = ALLOWED_ORIGINS.includes(origin);
+    console.log('Production mode:', isAllowed ? 'Origin allowed' : 'Origin rejected');
+    return isAllowed;
   }
 });
 
