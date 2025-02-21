@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple WebSocket Chat</title>
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #chat {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #message {
+            padding: 5px;
+            width: 200px;
+        }
+        #status {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">Status: Disconnected</div>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const status = document.getElementById('status');
+        const messageInput = document.getElementById('message');
+        const ws = new WebSocket('ws://localhost:8081');
+
+        ws.onopen = () => {
+            status.textContent = 'Status: Connected';
+        };
+
+        ws.onclose = () => {
+            status.textContent = 'Status: Disconnected';
+        };
+
+        ws.onmessage = (event) => {
+            chat.innerHTML += '<div>' + event.data + '</div>';
+            chat.scrollTop = chat.scrollHeight;
+        };
+
+        function sendMessage() {
+            if (messageInput.value) {
+                ws.send(messageInput.value);
+                messageInput.value = '';
+            }
+        }
+
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
