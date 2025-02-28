@@ -1,10 +1,14 @@
 // Convert http/https URLs to ws/wss URLs
 const convertToWebSocketURL = (url: string) => {
-  // For local development
-  if (!url || url.includes('localhost')) {
+  if (process.env.NODE_ENV === 'development') {
     return 'ws://localhost:8081';
   }
-  // For production (Render)
+  
+  // For production
+  if (!url) {
+    throw new Error('NEXT_PUBLIC_WEBSOCKET_URL environment variable is not set');
+  }
+  
   return url.replace('https://', 'wss://').replace('http://', 'ws://');
 };
 
